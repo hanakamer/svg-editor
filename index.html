@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>svg path editor</title>
+</head>
+<body>
+<div class="container">
+    <div class="control-panel">
+        <div class="control-panel-item">
+            <label for="svg-path-input">Input</label>
+            <textarea id="svg-path-input" type="text">M0 0L100 100 50 250 300 30Z</textarea>
+        </div>
+        <div class="control-panel-item">
+            <label for="scale">Scale</label>
+            <input id="scale" type="number">
+        </div>
+        <div class="control-panel-item">
+            <label for="translate-X">Translate X</label>
+            <input id="translate-X" type="number">
+        </div>
+        <div class="control-panel-item">
+            <label for="translate-Y">Translate Y</label>
+            <input id="translate-Y" type="number">
+        </div>
+        <div class="control-panel-item">
+            <label for="rotate">Rotate</label>
+            <input id="rotate" type="number">
+        </div>
+        <div class="control-panel-item">
+            <label for="output">Output</label>
+            <input id="output" type="text">
+        </div>
+    </div>
+    <div class="svg-container">
+        <div id="svg-path"></div>
+        <div id="drawing"></div>
+    </div>
+</div>
+<script src="src/jquery-3.3.1.min.js"></script>
+<script src="src/d3.v4.min.js"></script>
+<script src="src/svg.js"></script>
+<script src="src/victor.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
