@@ -1,9 +1,9 @@
 let path = $('#svg-path-input').val();
 let outputPath = path;
 let magnitude = $('#scale').val();
-let trnsX = $("#translate-X").val();
-let trnsY = $("#translate-Y").val();
-// let rotate = $("#rotate").val();
+let trnsX = $("#translate-X").val() || 0;
+let trnsY = $("#translate-Y").val() || 0;
+
 let points;
 const x = d3.scaleLinear()
 const y = d3.scaleLinear()
@@ -13,7 +13,7 @@ let drag = d3.drag().on('start', dragstarted)
                     .on('end', dragended)
 points  = generatePoints(path)
 
-// testLine(points);
+
 
 let line = function(path){
   return d3.line()
@@ -33,57 +33,29 @@ let line = function(path){
 
 
 const margin = {top: 30, right: 20, bottom: 30, left: 50},
-  width = 1000 - margin.left - margin.right,
-  height = 1000 - margin.top - margin.bottom;
+  width = 800 - margin.left - margin.right,
+  height = 600 - margin.top - margin.bottom;
 
 const svg = d3.select("body")
   .append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
   .append("g")
-  .attr("transform",
-    "translate(" + margin.left + "," + margin.top + ")");
+  .attr('id', 'SVGshape')
 
 
+
+
+let h,w;
 
 function generatePoints(svgPath){
   return parsePath(svgPath).value.map(p=>p);
 }
 
-function rotate(pointsArray,degree){
-  console.log(pointsArray)
-  let rotatedPoints = pointsArray.slice();
-   rotatedPoints.filter(p=>p[0]!='Z').map((p)=>{
-     console.log(p)
-     let v = new Victor(p[1], p[2])
-     v.rotateByDeg(degree);
-     p[1]= Math.round(v.x);
-     p[2]= Math.round(v.y);
-    return p;
-  })
-  console.log(rotatedPoints)
-  let rotatedPath = new SVG.PathArray(rotatedPoints).toString();
-  drawPoints(rotatedPoints);
-  render(rotatedPoints, line, rotatedPath)
-  // svg.select('path').attr('d', line(rotatedPath));
-  // setOutput(rotatedPath);
-  // points = generatePoints(rotatedPath);
-
+function blurAllElements(){
+  $('input').each(function(){
+  $(this).trigger('blur')})
 }
-
-function render(pointsArray, lineFunction, pathInput) {
-  debugger;
-  let path = svg.selectAll('path').data(pointsArray)
-  path.attr('d', lineFunction(pathInput))
-      .style('stroke-width', 1)
-      .style('stroke', 'steelblue');
-  path.enter().append('svg:path').attr('d',lineFunction(pathInput))
-      .style('stroke-width', 1)
-      .style('stroke', 'steelblue');
-  path.exit().remove()
-}
-
-
 
 function drawLine(pointsArray, lineFunction, path){
   svg.append('path')
@@ -94,15 +66,26 @@ function drawLine(pointsArray, lineFunction, path){
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
     .attr("stroke-width", 2.5)
-    .attr("d", lineFunction(path))
+    .attr("d", lineFunction(path));
+
+  w = d3.select("#SVGshape").node().getBoundingClientRect().width
+  h = d3.select("#SVGshape").node().getBoundingClientRect().height
+  let translateX = width/2 -w/2;
+  let translateY =height/2 -h/2;
+
+svg.attr("transform",
+  "translate(" + translateX+ "," + translateY+")");
+
 }
-function drawPoints(pArray){
+
+function drawPoints(points){
+
   let p;
-  if(pArray[pArray.length-1][0]=="Z"){
-    p = pArray.map(p=>p)
+  if(points[points.length-1][0]=="Z"){
+    p = points.map(p=>p)
     p.splice(-1,1)
   }else {
-    p = pArray.map(p=>p)
+    p = points.map(p=>p)
   }
   svg.selectAll('circle')
     .data(p)
@@ -128,39 +111,70 @@ function drawPoints(pArray){
   svg.selectAll('circle')
     .call(drag);
 }
+
 function dragstarted(d){
   d3.select(this).raise().classed('active', true)
 }
 
 function dragged(d){
-  // d[1] = x.invert(d3.event.x);
-  // d[2] = y.invert(d3.event.y);
-  // let cx = x.invert(d3.event.x);
-  // let cy = y.invert(d3.event.y);
-  // d3.select(this)
-  //   .attr('cx', x(cx))
-  //   .attr('cy', y(cy))
-  // let draggedPath  = new SVG.PathArray(points).toString();
-  // svg.select('path').attr('d', line(draggedPath));
-  // // setOutput(draggedPath);
+  d[1] = x.invert(d3.event.x);
+  d[2] = y.invert(d3.event.y);
+  let cx = x.invert(d3.event.x);
+  let cy = y.invert(d3.event.y);
+  d3.select(this)
+    .attr('cx', x(cx))
+    .attr('cy', y(cy))
+  let draggedPath  = new SVG.PathArray(points).toString();
+  updatePath(draggedPath,0);
+  setOutput(draggedPath);
 }
+
 function dragended(d){
   d3.select(this).classed('active', false)
 }
 
-function scaled(points, magnitude){
-  // let p = points.map((p)=>{
-  //   if(p[0]!=='Z'){
-  //     p[1]= p[1]*magnitude;
-  //     p[2]= p[2]*magnitude
-  //   }
-  //   return p
-  // })
-  // path  = new SVG.PathArray(p).toString();
-  // svg.select('path').attr('d', line);
+function updatePath(newPath,duration){
+  svg.select('path')
+  .transition()
+  .duration(duration)
+  .attr('d', line(newPath));
 }
-render(points,line,path);
-drawPoints(points);
+
+function updatePoints(){
+  svg.selectAll('circle')
+    .transition()
+		.duration(200)
+    .attr('cx', d=>{
+      if(d[0]=='Z'){
+        return
+      }else{
+        return x(d[1])
+      }
+    })
+    .attr('cy', d=>{
+      if(d[0]=='Z'){
+        return
+      }else{
+        return y(d[2])
+      }
+    })
+}
+
+function setOutput(path){
+  outputPath=path;
+   $("#output" ).val( path );
+}
+
+function update(newPath){
+
+  updatePath(newPath,200)
+
+  setOutput(newPath);
+
+  updatePoints();
+
+  blurAllElements();
+}
 
 function isValidSvg(str){
   if (typeof path !== 'string') return false
@@ -169,22 +183,58 @@ function isValidSvg(str){
   return false
 }
 
-function updateSvg(path){
-}
 function parsePath(path){
   let result = new SVG.PathArray(path);
   return result;
 }
-function translatePath(path,X,Y) {
-  let result = new SVG.PathArray(path).move(X, Y).toString();
-  return result;
+
+function scaled(points, magnitude){
+  let p = points.map((p)=>{
+    if(p[0]!=='Z'){
+      p[1]= p[1]*magnitude;
+      p[2]= p[2]*magnitude
+    }
+    return p
+  })
+  let scaledPath  = new SVG.PathArray(p).toString();
+  update(scaledPath);
 }
 
-function setOutput(path){
-  outputPath=path;
-   $("#output" ).val( path );
+function translatePath(pointsArray, translateX, translateY) {
+  let translatedPoints = pointsArray.map((p)=>{
+    if(p[0]!=='Z'){
+      p[1]= parseInt(p[1])+parseInt(translateX);
+      p[2]= parseInt(p[2])+parseInt(translateY);
+    }
+    return p
+  })
+
+  let translatedPath = new SVG.PathArray(translatedPoints).toString();
+
+    update(translatedPath);
 }
 
+function rotate(pointsArray,degree){
+
+  let rotatedPoints = pointsArray.slice();
+
+   rotatedPoints.filter(p=>p[0]!=="Z").map((p)=>{
+     let vector = new Victor(parseInt(p[1]-w/2),parseInt(p[2]-h/2));
+     vector.rotateDeg(degree);
+     p[1]=parseInt(vector.x + w/2)
+     p[2]=parseInt(vector.y +h/2)
+    return p;
+  })
+  let rotatedPath  = new SVG.PathArray(rotatedPoints).toString();
+
+  update(rotatedPath);
+
+}
+
+
+drawLine(points,line,path);
+
+drawPoints(points);
 
 $("#svg-path-input").on("change paste keyup", function() {
   path = $(this).val()
@@ -197,30 +247,45 @@ $("#svg-path-input").on("change paste keyup", function() {
     console.log('what is this? this is not svg')
   }
 });
-
+$('#scale').on('focusin', function(){
+    $(this).data('val', $(this).val());
+});
 $("#scale").on("change", function() {
-  magnitude = $(this).val();
+  let prev = parseInt($(this).data('val'));
+  let current = parseInt($(this).val());
+  if(current!==0){
+    magnitude = current/prev;
+    scaled(points,magnitude);
+  }
+  magnitude = current/prev;
   scaled(points,magnitude);
 })
-
+$('#translate-X').on('focusin', function(){
+    $(this).data('val', $(this).val());
+});
 $("#translate-X").on("change", function() {
-  trnsX = $(this).val();
-  let translatedPath = translatePath(outputPath,trnsX,trnsY);
-  setOutput(translatedPath);
-  updateSvg(outputPath);
+  let prev = parseInt($(this).data('val'));
+  let current = parseInt($(this).val());
+  trnsX = current - prev;
+  translatePath(points,trnsX,0);
 
 })
+$('#translate-Y').on('focusin', function(){
+    $(this).data('val', $(this).val());
+});
 $("#translate-Y").on("change", function() {
-  trnsY = $(this).val();
-  let translatedPath = translatePath(outputPath,trnsX,trnsY);
-  setOutput(translatedPath);
-  updateSvg(outputPath);
+  let prev = parseInt($(this).data('val'));
+  let current = parseInt($(this).val());
+  trnsY = current - prev;
+  translatePath(points,0,trnsY);
 
 })
-$("#rotate").on("change", function() {
-  let degree = $(this).val() ;
-  console.log(points)
-  let rotatedPath = rotate(points,degree);
-
-
-})
+$('#rotate').on('focusin', function(){
+    $(this).data('val', $(this).val());
+});
+$('#rotate').on('change', function(){
+    let prev = parseInt($(this).data('val'));
+    let current = parseInt($(this).val());
+    let degree = current - prev ;
+    rotate(points,degree);
+});
