@@ -9,8 +9,9 @@
 <div class="container">
     <div class="control-panel">
         <div class="control-panel-item">
+
+            <input  id="svg-path-input" type="text" value="M-135 5L-134 233L156 237L159 3Z "></textarea>
             <label for="svg-path-input">Input</label>
-            <textarea id="svg-path-input" type="text">M20 20L100 100 50 250 300 30Z</textarea>
             <!-- <textarea id="svg-path-input" type="text">M 161.000 181.000
           L 181.000 195.641
           L 178.321 171.000
@@ -26,24 +27,27 @@
           z</textarea> -->
         </div>
         <div class="control-panel-item">
+            <input step="0.01" id="scale" type="number" value="1">
             <label for="scale">Scale</label>
-            <input id="scale" type="number" value="1">
         </div>
         <div class="control-panel-item">
-            <label for="translate-X">Translate X</label>
             <input id="translate-X" type="number" value="0">
+            <label for="translate-X">Translate X</label>
         </div>
         <div class="control-panel-item">
-            <label for="translate-Y">Translate Y</label>
             <input id="translate-Y" type="number" value="0">
+            <label for="translate-Y">Translate Y</label>
+
         </div>
         <div class="control-panel-item">
-            <label for="rotate">Rotate</label>
             <input id="rotate" type="number" value="0">
+            <label for="rotate">Rotate</label>
+
         </div>
         <div class="control-panel-item">
-            <label for="output">Output</label>
             <input id="output" type="text">
+            <label for="output">Output</label>
+
         </div>
     </div>
     <div class="svg-container">

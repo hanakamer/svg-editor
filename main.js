@@ -49,7 +49,7 @@ function createSVG(){
 }
 
 let h,w;
-
+let center;
 function generatePoints(svgPath){
   return parsePath(svgPath).value.map(p=>p);
 }
@@ -73,13 +73,15 @@ function drawLine(pointsArray, lineFunction, path){
 }
 
 function findCenter(points){
-  let test = [["M",1,1],["L",2,1],["L",3,4], ["L",3,4]]
-  let result = points.filter(p=> p[0] !== "Z").reduce((accumulator, currentValue)=>{
+  let result;
+  let count = 0;
+  result = points.filter(p=> p[0] !== "Z").reduce((accumulator, currentValue,index)=>{
+    count = index+1
      return {'x': accumulator['x']+currentValue[1],
             'y':accumulator['y']+currentValue[2]};
-  },{x:0,y:0})
-  result['x']=result['x']/points.length-1
-  result['y']=result['y']/points.length-1
+  },{x:0,y:0});
+  result['x']= Math.round(result['x']/count * 100) / 100
+  result['y']= Math.round(result['y']/count * 100) / 100
   return result
 }
 
@@ -99,6 +101,22 @@ function addZeroPoint(){
 }
 
 function drawPoints(points){
+  center = findCenter(points);
+
+  svg.append('circle')
+  .attr('r', 3)
+  .attr('cx', center['x'])
+  .attr('cy', center['y'])
+  .style('fill', 'green')
+  .attr('id','center')
+
+  svg.append('text')
+  .text(center['x']+','+center['y'])
+  .attr('x',center['x']+5)
+  .attr('y',center['y']+15)
+  .attr('font-family', 'sans-serif')
+  .attr('fill', 'green')
+  .attr('id','center-text')
 
   let p;
   if(points[points.length-1][0]=="Z"){
@@ -107,7 +125,7 @@ function drawPoints(points){
   }else {
     p = points.map(p=>p)
   }
-  svg.selectAll('circle')
+  svg.selectAll('.point')
     .data(p)
     .enter()
     .append('circle')
@@ -133,19 +151,21 @@ function drawPoints(points){
     svg.selectAll('.point')
     .call(drag);
 
-    w = d3.select("#SVGshape").node().getBoundingClientRect().width
-    h = d3.select("#SVGshape").node().getBoundingClientRect().height
-    let translateX = width/2 - (w/2);
-    let translateY =height/2 - (h/2);
-
-    console.log(translateX, translateY)
+    w = d3.select(".line").node().getBoundingClientRect().width
+    h = d3.select(".line").node().getBoundingClientRect().height
+    let translateX = width/2 - center['x'];
+    let translateY =height/2 - center['y'];
 
     svg.attr("transform",
-      "translate(" + translateX+ "," + translateY+")");
+      "translate(" +translateX+ "," + translateY+")");
 }
 
 function dragstarted(d){
+  d3.select(this).transition()
+      .duration(500)
+      .attr("r", 10);
   d3.select(this).raise().classed('active', true)
+
 }
 
 function dragged(d){
@@ -153,16 +173,22 @@ function dragged(d){
   d[2] = y.invert(d3.event.y);
   let cx = x.invert(d3.event.x);
   let cy = y.invert(d3.event.y);
+
   d3.select(this)
     .attr('cx', x(cx))
     .attr('cy', y(cy))
   let draggedPath  = new SVG.PathArray(points).toString();
   updatePath(draggedPath,0);
   setOutput(draggedPath);
+
 }
 
 function dragended(d){
+  d3.select(this).transition()
+      .duration(500)
+      .attr("r", 5);
   d3.select(this).classed('active', false)
+
 }
 
 function updatePath(newPath,duration){
@@ -195,6 +221,22 @@ function updatePoints(){
 function setOutput(path){
   outputPath=path;
    $("#output" ).val( path );
+
+   center = findCenter(points);
+
+   d3.select('#center')
+   .transition()
+   .duration(10)
+   .attr('cx', center['x'])
+   .attr('cy', center['y']);
+
+   d3.select('#center-text')
+   .transition()
+   .duration(10)
+   .text(center['x']+','+center['y'])
+   .attr('x',center['x']+5)
+   .attr('y',center['y']+15)
+
 }
 
 function update(newPath){
@@ -206,6 +248,7 @@ function update(newPath){
   updatePoints();
 
   blurAllElements();
+
 }
 
 function isValidSvg(str){
@@ -263,24 +306,32 @@ function rotate(pointsArray,degree){
 
 }
 
-createSVG();
+function resetAllInputs(){
+  $("#scale").val(1);
+  $('#translate-X').val(0);
+  $('#translate-Y').val(0);
+  $('#rotate').val(0);
+}
 
+createSVG();
 
 drawLine(points,line,path);
 
 drawPoints(points);
 addZeroPoint();
 
-$("#svg-path-input").on("change paste", function() {
+$("#svg-path-input").on("change", function() {
   path = $(this).val()
+  d3.selectAll('svg').remove();
   if (isValidSvg(path)){
-    d3.select('svg').remove();
     createSVG();
     points =  generatePoints(path)
     path =  new SVG.PathArray(points).toString();
     drawLine(points,line,path);
     drawPoints(points);
     addZeroPoint();
+    resetAllInputs();
+    setOutput(path);
 
   } else{
     console.log('what is this? this is not svg')
@@ -290,8 +341,8 @@ $('#scale').on('focusin', function(){
     $(this).data('val', $(this).val());
 });
 $("#scale").on("change", function() {
-  let prev = parseInt($(this).data('val'));
-  let current = parseInt($(this).val());
+  let prev = Math.round($(this).data('val')*100)/100;
+  let current = Math.round($(this).val()*100)/100;
   if(current !== 0 && prev !== 0 ){
     magnitude = current/prev;
     scaled(points,magnitude);
