@@ -1,15 +1,70 @@
+
 body{
-  font-family: sans-serif;
+  /* font-family: 'Press Start 2P', cursive; */
+    font-size: 18px;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+#svg-path-input{
+  width:600px;
+}
+#output{
+  width: 600px;
+}
+.container{
+margin:0 auto;
+}
+.svg-container{
+    position: relative;
 }
 .shape-container {
-  background: lightgrey;
+  background: #513B56;
 }
 .control-panel{
-  float: right;
+  position: absolute;
+  left: 10px;
+  top: 10px;
 }
-.control-panel-item input{
-  width: 300px;
-  height:20px;
-  font-size: 20px;
+.output-item{
+  position: absolute;
+  bottom: 10px;
+  left:10px;
+  color: white;
+}
+.control-panel-item{
+  height: 30px;
+  line-height: 30px;
+  margin-bottom: 3px;
+}
+.button{
+  color:white;
+  width: 25px;
+  height:30px;
+  line-height: 30px;
+  text-align: center;
+  display: inline-block;
 
+}
+.button:hover{
+  font-size: 22px;
+}
+.std-input{
+  width: 300px;
+  height:30px;
+  font-size: 20px;
+  border: none
+}
+.num-input {
+  width: 50px;
+}
+
+.item-label {
+  width: 80px;
+  display: inline-block;
 }

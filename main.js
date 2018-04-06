@@ -31,6 +31,8 @@ let line = function(path){
     })
 }
 
+let curve  = d3.line().curve(d3.curveCardial)
+
 
 const margin = {top: 0, right:0, bottom: 0, left: 0},
   width = 800 - margin.left - margin.right,
@@ -38,7 +40,7 @@ const margin = {top: 0, right:0, bottom: 0, left: 0},
 
 let svg;
 function createSVG(){
-  svg = d3.select("body")
+  svg = d3.select("#svg-path")
    .append("svg")
    .attr("width", width + margin.left + margin.right)
    .attr("height", height + margin.top + margin.bottom)
@@ -64,7 +66,7 @@ function drawLine(pointsArray, lineFunction, path){
     .datum(pointsArray)
     .attr('fill','none')
     .attr('class','line')
-    .attr('stroke', 'steelblue')
+    .attr('stroke', '#BCE784')
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
     .attr("stroke-width", 2.5)
@@ -90,7 +92,7 @@ function addZeroPoint(){
   .attr('r', 5)
   .attr('cx', 0)
   .attr('cy', 0)
-  .style('fill', 'red')
+  .style('fill', '#fb2e01')
 
   svg.append('text')
   .text('0,0')
@@ -107,7 +109,7 @@ function drawPoints(points){
   .attr('r', 3)
   .attr('cx', center['x'])
   .attr('cy', center['y'])
-  .style('fill', 'green')
+  .style('fill', '#6fcb9f')
   .attr('id','center')
 
   svg.append('text')
@@ -115,7 +117,7 @@ function drawPoints(points){
   .attr('x',center['x']+5)
   .attr('y',center['y']+15)
   .attr('font-family', 'sans-serif')
-  .attr('fill', 'green')
+  .attr('fill', '#6fcb9f')
   .attr('id','center-text')
 
   let p;
@@ -145,7 +147,7 @@ function drawPoints(points){
       }
     })
     .style('cursor','pointer')
-    .style('fill','orange')
+    .style('fill','#5DD39E')
     .attr('class','point')
 
     svg.selectAll('.point')
@@ -163,7 +165,7 @@ function drawPoints(points){
 function dragstarted(d){
   d3.select(this).transition()
       .duration(500)
-      .attr("r", 10);
+      .style("fill", 'black');
   d3.select(this).raise().classed('active', true)
 
 }
@@ -186,7 +188,7 @@ function dragged(d){
 function dragended(d){
   d3.select(this).transition()
       .duration(500)
-      .attr("r", 5);
+      .style("fill", 'orange');
   d3.select(this).classed('active', false)
 
 }
@@ -264,10 +266,11 @@ function parsePath(path){
 }
 
 function scaled(points, magnitude){
+
   let p = points.map((p)=>{
     if(p[0]!=='Z'){
-      p[1]= p[1]*magnitude;
-      p[2]= p[2]*magnitude
+      p[1]= round(p[1]*magnitude);
+      p[2]= round(p[2]*magnitude);
     }
     return p
   })
@@ -279,7 +282,7 @@ function translatePath(pointsArray, translateX, translateY) {
   let translatedPoints = pointsArray.map((p)=>{
     if(p[0]!=='Z'){
       p[1]= parseInt(p[1])+parseInt(translateX);
-      p[2]= parseInt(p[2])+parseInt(translateY);
+      p[2]= parseInt(p[2])-parseInt(translateY);
     }
     return p
   })
@@ -294,15 +297,19 @@ function rotate(pointsArray,degree){
   let rotatedPoints = pointsArray.slice();
   let center = findCenter(pointsArray);
    rotatedPoints.filter(p=>p[0]!=="Z").map((p)=>{
-     let vector = new Victor(parseInt(p[1]-center['x']),parseInt(p[2]-center['y']));
+     let vector = new Victor(Number(p[1]-center['x']),Number(p[2]-center['y']));
      vector.rotateDeg(degree);
-     p[1]=parseInt(vector.x + center['x'])
-     p[2]=parseInt(vector.y + center['y'])
+     p[1]=round(vector.x + center['x'])
+     p[2]=round(vector.y + center['y'])
     return p;
   })
   let rotatedPath  = new SVG.PathArray(rotatedPoints).toString();
 
   update(rotatedPath);
+
+}
+function round(num){
+  return Math.round(num*100)/100;
 
 }
 
@@ -320,6 +327,45 @@ drawLine(points,line,path);
 drawPoints(points);
 addZeroPoint();
 
+
+$(".button").on("click", function() {
+  var $button = $(this);
+  let prev = Number($button.parent().find("input").val());
+  let inputElement = $button.parent().find("input");
+  let step = Number(inputElement.attr('step')) || 1;
+  let current;
+
+  if ($button.hasClass('inc')) {
+	   current = step < 1 ? round(prev + step) : parseInt(prev + step) ;
+	} else {
+     current = step < 1 ? round(prev - step) : parseInt(prev - step) ;
+  }
+  inputElement.focus();
+  inputElement.val(current);
+
+  if (inputElement.attr('id')=='scale'){
+    if(current !== 0 && prev !== 0 ){
+      magnitude = current/prev;
+      scaled(points,magnitude);
+    }
+  }
+  else if (inputElement.attr('id') == 'translate-X'){
+    trnsX = current - prev;
+    translatePath(points,trnsX,0);
+  }
+  else if (inputElement.attr('id') == 'translate-Y'){
+    trnsY = current - prev;
+    translatePath(points,0,trnsY);
+  }
+  else if (inputElement.attr('id') == 'rotate'){
+    let degree = current - prev ;
+    rotate(points,degree);
+  } else {
+    return;
+  }
+
+});
+
 $("#svg-path-input").on("change", function() {
   path = $(this).val()
   d3.selectAll('svg').remove();
@@ -327,6 +373,7 @@ $("#svg-path-input").on("change", function() {
     createSVG();
     points =  generatePoints(path)
     path =  new SVG.PathArray(points).toString();
+    console.log(path)
     drawLine(points,line,path);
     drawPoints(points);
     addZeroPoint();
@@ -336,44 +383,4 @@ $("#svg-path-input").on("change", function() {
   } else{
     console.log('what is this? this is not svg')
   }
-});
-$('#scale').on('focusin', function(){
-    $(this).data('val', $(this).val());
-});
-$("#scale").on("change", function() {
-  let prev = Math.round($(this).data('val')*100)/100;
-  let current = Math.round($(this).val()*100)/100;
-  if(current !== 0 && prev !== 0 ){
-    magnitude = current/prev;
-    scaled(points,magnitude);
-  }
-})
-$('#translate-X').on('focusin', function(){
-    $(this).data('val', $(this).val());
-});
-$("#translate-X").on("change", function() {
-  let prev = parseInt($(this).data('val'));
-  let current = parseInt($(this).val());
-  trnsX = current - prev;
-  translatePath(points,trnsX,0);
-
-})
-$('#translate-Y').on('focusin', function(){
-    $(this).data('val', $(this).val());
-});
-$("#translate-Y").on("change", function() {
-  let prev = parseInt($(this).data('val'));
-  let current = parseInt($(this).val());
-  trnsY = current - prev;
-  translatePath(points,0,trnsY);
-
-})
-$('#rotate').on('focusin', function(){
-    $(this).data('val', $(this).val());
-});
-$('#rotate').on('change', function(){
-    let prev = parseInt($(this).data('val'));
-    let current = parseInt($(this).val());
-    let degree = current - prev ;
-    rotate(points,degree);
 });

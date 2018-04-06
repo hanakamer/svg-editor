@@ -4,56 +4,76 @@
     <meta charset="UTF-8">
     <title>svg path editor</title>
     <link rel="stylesheet" href="./style.css">
-</head>
+    <script defer src="/src/fontawesome-all.js"></script>
+<!-- <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet"></head> -->
 <body>
 <div class="container">
-    <div class="control-panel">
-        <div class="control-panel-item">
+  <div class="control-panel-item">
+      <label class="item-label" for="svg-path-input">Input</label>
+      <input class="std-input" id="svg-path-input" type="text" value="M 161.000 181.000
+    L 181.000 195.641
+    L 178.321 171.000
+    L 201.000 161.000
+    L 178.321 151.000
+    L 181.000 126.359
+    L 161.000 141.000
+    L 141.000 126.359
+    L 143.679 151.000
+    L 121.000 161.000
+    L 143.679 171.000
+    L 141.000 195.641 Z">
 
-            <input  id="svg-path-input" type="text" value="M-135 5L-134 233L156 237L159 3Z "></textarea>
-            <label for="svg-path-input">Input</label>
-            <!-- <textarea id="svg-path-input" type="text">M 161.000 181.000
-          L 181.000 195.641
-          L 178.321 171.000
-          L 201.000 161.000
-          L 178.321 151.000
-          L 181.000 126.359
-          L 161.000 141.000
-          L 141.000 126.359
-          L 143.679 151.000
-          L 121.000 161.000
-          L 143.679 171.000
-          L 141.000 195.641
-          z</textarea> -->
-        </div>
-        <div class="control-panel-item">
-            <input step="0.01" id="scale" type="number" value="1">
-            <label for="scale">Scale</label>
-        </div>
-        <div class="control-panel-item">
-            <input id="translate-X" type="number" value="0">
-            <label for="translate-X">Translate X</label>
-        </div>
-        <div class="control-panel-item">
-            <input id="translate-Y" type="number" value="0">
-            <label for="translate-Y">Translate Y</label>
 
-        </div>
-        <div class="control-panel-item">
-            <input id="rotate" type="number" value="0">
-            <label for="rotate">Rotate</label>
+  </div>
+  <div class="svg-container">
+      <div id="svg-path"></div>
+      <div class="control-panel">
 
-        </div>
-        <div class="control-panel-item">
-            <input id="output" type="text">
-            <label for="output">Output</label>
+          <div class="control-panel-item scale">
+              <div class="inc button">
+                <i class="control-icon fas fa-search-plus"></i>
+              </div>
+              <div class="dec button">
+                <i class="control-icon fas fa-search-minus"></i>
+              </div>
+              <input class="std-input num-input" step="0.01" id="scale" type="number" value="1">
+          </div>
+          <div class="control-panel-item">
+            <div class="inc button">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+            <div class="dec button">
+              <i class="fas fa-arrow-left"></i>
+            </div>
+              <input class="std-input num-input" id="translate-X" type="number" value="0" step="1">
+          </div>
+          <div class="control-panel-item">
+            <div class="inc button">
+              <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="dec button">
+              <i class="fas fa-arrow-down"></i>
+            </div>
+            <input class="std-input num-input" id="translate-Y" type="number" value="0">
 
-        </div>
-    </div>
-    <div class="svg-container">
-        <div id="svg-path"></div>
-        <div id="drawing"></div>
-    </div>
+          </div>
+          <div class="control-panel-item">
+            <div class="inc button">
+            <i class="fas fa-redo"></i>
+            </div>
+            <div class="dec button">
+              <i class="fas fa-undo"></i>
+            </div>
+              <input  class="std-input num-input" id="rotate" type="number" value="0">
+          </div>
+
+      </div>
+      <div class="output-item">
+          <label class="item-label" for="output"><i class="fas fa-sign-out-alt"></i></label>
+          <input class="std-input" id="output" type="text">
+      </div>
+  </div>
+
 </div>
 <script src="src/jquery-3.3.1.min.js"></script>
 <script src="src/d3.v4.min.js"></script>
