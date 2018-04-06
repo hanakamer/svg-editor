@@ -269,8 +269,8 @@ function scaled(points, magnitude){
 
   let p = points.map((p)=>{
     if(p[0]!=='Z'){
-      p[1]= round(p[1]*magnitude);
-      p[2]= round(p[2]*magnitude);
+      p[1]= p[1]*magnitude;
+      p[2]= p[2]*magnitude;
     }
     return p
   })
@@ -336,9 +336,9 @@ $(".button").on("click", function() {
   let current;
 
   if ($button.hasClass('inc')) {
-	   current = step < 1 ? round(prev + step) : parseInt(prev + step) ;
+	   current = step < 1 ? prev + step : parseInt(prev + step) ;
 	} else {
-     current = step < 1 ? round(prev - step) : parseInt(prev - step) ;
+     current = step < 1 ? prev - step : parseInt(prev - step) ;
   }
   inputElement.focus();
   inputElement.val(current);
@@ -368,7 +368,7 @@ $(".button").on("click", function() {
 
 $("#svg-path-input").on("change", function() {
   path = $(this).val()
-  d3.selectAll('svg').remove();
+  d3.selectAll('svg.shape-container').remove();
   if (isValidSvg(path)){
     createSVG();
     points =  generatePoints(path)
@@ -384,3 +384,98 @@ $("#svg-path-input").on("change", function() {
     console.log('what is this? this is not svg')
   }
 });
+
+$('#scale').on('focusin', function(){
+    $(this).data('val', $(this).val());
+});
+$("#scale").on("change", function() {
+  let prev = Math.round($(this).data('val')*100)/100;
+  let current = Math.round($(this).val()*100)/100;
+  if(current !== 0 && prev !== 0 ){
+    magnitude = current/prev;
+    scaled(points,magnitude);
+  }
+})
+$('#translate-X').on('focusin', function(){
+    $(this).data('val', $(this).val());
+});
+$("#translate-X").on("change", function() {
+  let prev = parseInt($(this).data('val'));
+  let current = parseInt($(this).val());
+  trnsX = current - prev;
+  translatePath(points,trnsX,0);
+
+})
+$('#translate-Y').on('focusin', function(){
+    $(this).data('val', $(this).val());
+});
+$("#translate-Y").on("change", function() {
+  let prev = parseInt($(this).data('val'));
+  let current = parseInt($(this).val());
+  trnsY = current - prev;
+  translatePath(points,0,trnsY);
+
+})
+$('#rotate').on('focusin', function(){
+    $(this).data('val', $(this).val());
+});
+$('#rotate').on('change', function(){
+    let prev = parseInt($(this).data('val'));
+    let current = parseInt($(this).val());
+    let degree = current - prev ;
+    rotate(points,degree);
+});
+
+document.getElementById("copyButton").addEventListener("click", function() {
+    copyToClipboard(document.getElementById("output"));
+});
+
+function copyToClipboard(elem) {
+	  // create hidden text element, if it doesn't already exist
+    var targetId = "_hiddenCopyText_";
+    var isInput = elem.tagName === "INPUT" || elem.tagName === "TEXTAREA";
+    var origSelectionStart, origSelectionEnd;
+    if (isInput) {
+        // can just use the original source element for the selection and copy
+        target = elem;
+        origSelectionStart = elem.selectionStart;
+        origSelectionEnd = elem.selectionEnd;
+    } else {
+        // must use a temporary form element for the selection and copy
+        target = document.getElementById(targetId);
+        if (!target) {
+            var target = document.createElement("textarea");
+            target.style.position = "absolute";
+            target.style.left = "-9999px";
+            target.style.top = "0";
+            target.id = targetId;
+            document.body.appendChild(target);
+        }
+        target.textContent = elem.textContent;
+    }
+    // select the content
+    var currentFocus = document.activeElement;
+    target.focus();
+    target.setSelectionRange(0, target.value.length);
+
+    // copy the selection
+    var succeed;
+    try {
+    	  succeed = document.execCommand("copy");
+    } catch(e) {
+        succeed = false;
+    }
+    // restore original focus
+    if (currentFocus && typeof currentFocus.focus === "function") {
+        currentFocus.focus();
+    }
+
+    if (isInput) {
+        // restore prior selection
+        elem.setSelectionRange(origSelectionStart, origSelectionEnd);
+    } else {
+        // clear temporary content
+        target.textContent = "";
+    }
+    return succeed;
+}

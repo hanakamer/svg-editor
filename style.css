@@ -1,6 +1,6 @@
 
 body{
-  /* font-family: 'Press Start 2P', cursive; */
+  font-family: 'Press Start 2P', cursive;
     font-size: 18px;
 }
 input[type=number]::-webkit-inner-spin-button,
@@ -12,13 +12,15 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 #svg-path-input{
-  width:600px;
+  width:700px;
+  background: lightgray;
 }
 #output{
   width: 600px;
 }
 .container{
-margin:0 auto;
+  width: 800px;
+  margin:0 auto;
 }
 .svg-container{
     position: relative;
@@ -38,9 +40,7 @@ margin:0 auto;
   color: white;
 }
 .control-panel-item{
-  height: 30px;
-  line-height: 30px;
-  margin-bottom: 3px;
+  margin-bottom: 5px;
 }
 .button{
   color:white;
@@ -49,14 +49,16 @@ margin:0 auto;
   line-height: 30px;
   text-align: center;
   display: inline-block;
+  box-sizing: border-box;
 
 }
 .button:hover{
   font-size: 22px;
+  height:30px;
 }
 .std-input{
   width: 300px;
-  height:30px;
+  height:35px;
   font-size: 20px;
   border: none
 }
@@ -67,4 +69,11 @@ margin:0 auto;
 .item-label {
   width: 80px;
   display: inline-block;
+}
+#copyButton {
+  display: inline-block;
+  color: white;
+}
+#copyButton:hover{
+  cursor: pointer;
 }
