@@ -1,5 +1,5 @@
 # svg-editor
 svg editor
 <p align="center">
-  <img src="https://github.com/hanakamer/svg-editor/blob/gh-pages/src/star.gif" alt="preview"/>
+  <img src="https://gph.is/2q8uzGS" alt="preview"/>
 </p>
