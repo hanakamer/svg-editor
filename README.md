@@ -1,5 +1,5 @@
 # svg-editor
 svg editor
 <p align="center">
-  <img src="https://gph.is/2q8uzGS" alt="preview"/>
+  <img src="https://media.giphy.com/media/3gYRdSyc3aQGvWQO0b/giphy.gif" alt="preview"/>
 </p>
