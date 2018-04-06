@@ -3,6 +3,9 @@ body{
   font-family: 'Press Start 2P', cursive;
     font-size: 18px;
 }
+input:focus{
+  outline: none;
+}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
